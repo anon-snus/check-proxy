@@ -1,0 +1,2 @@
+class InvalidProxy(Exception):
+    pass
