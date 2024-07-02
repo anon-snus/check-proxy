@@ -38,7 +38,7 @@ def get_unique_filename(directory: str, base_filename: str) -> str:
 
 async def main():
     proxies = []
-    # Read proxies from file
+
     try:
         with open('proxies.txt', 'r') as file:
             proxies = [line.strip() for line in file if line.strip()]
@@ -52,7 +52,6 @@ async def main():
         formatted_proxy = await check_format(proxy)
         tasks.append((i, proxy, check_ip(formatted_proxy)))
 
-    # Execute tasks concurrently with a progress bar
     for i, (idx, proxy, task) in tqdm(enumerate(tasks, start=1), total=len(tasks)):
         try:
             await task
@@ -63,7 +62,6 @@ async def main():
     results_dir = 'results'
     output_file = get_unique_filename(results_dir, 'proxy_results.csv')
 
-    # Write results to CSV file
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = ['No', 'Proxy', 'Status']
         writer = csv.writer(csvfile)
