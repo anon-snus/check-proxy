@@ -1,16 +1,19 @@
 import asyncio
 import aiohttp
 import csv
+import re
 import os
 from tqdm.asyncio import tqdm
 
 from exceptions import InvalidProxy
 
-format=True #if your proxies are in format 'log:pass@ip:port' Fase, elif 'IP:PORT:LOG:PASS' True
+format='ip:port:login:password' # указать порядок элементов айпи в вашем софте через двоеточие названия элементов : ip:port:login:password
 async def check_format(proxy: str):
-    if format==True:
-        parts=proxy.split(':')
-        proxy=f"{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
+    if format!= 'login:password@ip:port':
+        format_parts = format.split(':')
+        proxy_parts = re.split('[:@]', proxy)
+        proxy_dict = {key: value for key, value in zip(format_parts, proxy_parts)}
+        proxy = f"{proxy_dict['login']}:{proxy_dict['password']}@{proxy_dict['ip']}:{proxy_dict['port']}"
     if 'http' not in proxy:
         proxy = f'http://{proxy}'
     return proxy
