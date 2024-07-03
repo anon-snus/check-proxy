@@ -6,11 +6,15 @@ from tqdm.asyncio import tqdm
 
 from exceptions import InvalidProxy
 
-
+format=True #if your proxies are in format 'log:pass@ip:port' Fase, elif 'IP:PORT:LOG:PASS' True
 async def check_format(proxy: str):
+    if format==True:
+        parts=proxy.split(':')
+        proxy=f"{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
     if 'http' not in proxy:
         proxy = f'http://{proxy}'
     return proxy
+
 
 async def check_ip(proxy: str):
     async with aiohttp.ClientSession() as session:
@@ -38,7 +42,7 @@ def get_unique_filename(directory: str, base_filename: str) -> str:
 
 async def main():
     proxies = []
-
+    # Read proxies from file
     try:
         with open('proxies.txt', 'r') as file:
             proxies = [line.strip() for line in file if line.strip()]
@@ -52,6 +56,7 @@ async def main():
         formatted_proxy = await check_format(proxy)
         tasks.append((i, proxy, check_ip(formatted_proxy)))
 
+    # Execute tasks concurrently with a progress bar
     for i, (idx, proxy, task) in tqdm(enumerate(tasks, start=1), total=len(tasks)):
         try:
             await task
@@ -62,6 +67,7 @@ async def main():
     results_dir = 'results'
     output_file = get_unique_filename(results_dir, 'proxy_results.csv')
 
+    # Write results to CSV file
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = ['No', 'Proxy', 'Status']
         writer = csv.writer(csvfile)
